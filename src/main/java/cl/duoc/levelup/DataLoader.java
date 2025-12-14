@@ -1,9 +1,11 @@
 package cl.duoc.levelup;
+
+import cl.duoc.levelup.model.Categoria;
 import cl.duoc.levelup.model.Producto;
 import cl.duoc.levelup.model.Usuario;
+import cl.duoc.levelup.repository.CategoriaRepository;
 import cl.duoc.levelup.repository.ProductoRepository;
 import cl.duoc.levelup.repository.UsuarioRepository;
-import cl.duoc.levelup.service.UsuarioService;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -23,10 +25,31 @@ public class DataLoader implements CommandLineRunner {
     private ProductoRepository productoRepository;
 
     @Autowired
+    private CategoriaRepository categoriaRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
+
+        // Cargar categorías PRIMERO
+        if (categoriaRepository.findAll().isEmpty()) {
+            List<Categoria> categorias = List.of(
+                    new Categoria(null, "juegos-mesa"),
+                    new Categoria(null, "accesorios"),
+                    new Categoria(null, "consolas"),
+                    new Categoria(null, "pc-gamer"),
+                    new Categoria(null, "silla-gamer"),
+                    new Categoria(null, "mouse"),
+                    new Categoria(null, "mousepad"),
+                    new Categoria(null, "poleras"),
+                    new Categoria(null, "polerones")
+            );
+
+            categoriaRepository.saveAll(categorias);
+            System.out.println("✅ Categorías cargadas: " + categorias.size());
+        }
 
         if (usuarioRepository.findAll().isEmpty()) {
             Faker faker = new Faker();
@@ -40,6 +63,7 @@ public class DataLoader implements CommandLineRunner {
             admin.setTipoUsuario("Admin");
 
             usuarioRepository.save(admin);
+            System.out.println("✅ Usuario admin creado");
         }
 
         if (productoRepository.findAll().isEmpty()) {
@@ -98,6 +122,7 @@ public class DataLoader implements CommandLineRunner {
             );
 
             productoRepository.saveAll(productos);
+            System.out.println("✅ Productos cargados: " + productos.size());
         }
     }
 }
